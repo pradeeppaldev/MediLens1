@@ -1,66 +1,37 @@
 import React, { useMemo } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, DollarSign, Calendar } from 'lucide-react';
+import { TrendingUp, Calendar, PieChart as PieIcon, BarChart2 } from 'lucide-react';
 
-const ExpenseChart = ({ expenses, timeRange = 'month' }) => {
+const ExpenseChart = ({ expenses, timeRange = 'all' }) => {
   const chartData = useMemo(() => {
     if (!expenses || expenses.length === 0) return [];
 
-    const now = new Date();
-    let startDate;
-
-    // Determine date range based on timeRange
-    switch (timeRange) {
-      case 'week':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case 'month':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        break;
-      case 'quarter':
-        startDate = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-        break;
-      case 'year':
-        startDate = new Date(now.getFullYear(), 0, 1);
-        break;
-      default:
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    }
-
-    // Filter expenses within the date range
-    const filteredExpenses = expenses.filter(expense => {
-      const expenseDate = new Date(expense.date.seconds * 1000);
-      return expenseDate >= startDate;
-    });
-
-    // Group by month for bar chart
     const monthlyData = {};
-    filteredExpenses.forEach(expense => {
-      const date = new Date(expense.date.seconds * 1000);
+    expenses.forEach(expense => {
+      const date = expense.date?.seconds
+        ? new Date(expense.date.seconds * 1000)
+        : new Date(expense.date || Date.now());
+
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      const monthName = date.toLocaleDateString('en-IN', { month: 'short' });
 
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = { month: monthName, total: 0 };
       }
-      monthlyData[monthKey].total += expense.cost;
+      monthlyData[monthKey].total += (expense.cost || 0);
     });
 
-    return Object.values(monthlyData).sort((a, b) => {
-      const aDate = new Date(a.month + ' 1, 2000');
-      const bDate = new Date(b.month + ' 1, 2000');
-      return aDate - bDate;
-    });
-  }, [expenses, timeRange]);
+    return Object.values(monthlyData);
+  }, [expenses]);
 
   const categoryData = useMemo(() => {
     if (!expenses || expenses.length === 0) return [];
 
     const categoryTotals = {};
     expenses.forEach(expense => {
-      const category = expense.category;
-      categoryTotals[category] = (categoryTotals[category] || 0) + expense.cost;
+      const category = expense.category || 'Prescription';
+      categoryTotals[category] = (categoryTotals[category] || 0) + (expense.cost || 0);
     });
 
     return Object.entries(categoryTotals)
@@ -68,25 +39,15 @@ const ExpenseChart = ({ expenses, timeRange = 'month' }) => {
       .sort((a, b) => b.total - a.total);
   }, [expenses]);
 
-  const totalExpenses = useMemo(() => {
-    return expenses?.reduce((sum, expense) => sum + expense.cost, 0) || 0;
-  }, [expenses]);
-
-  const averageMonthly = useMemo(() => {
-    if (!chartData || chartData.length === 0) return 0;
-    const total = chartData.reduce((sum, data) => sum + data.total, 0);
-    return total / chartData.length;
-  }, [chartData]);
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C', '#8DD1E1'];
+  const COLORS = ['#2563eb', '#0d9488', '#7c3aed', '#f59e0b', '#ec4899', '#06b6d4', '#10b981', '#8b5cf6'];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
-          <p className="font-medium">{`${label}`}</p>
-          <p className="text-primary">
-            {`Total: $${payload[0].value.toFixed(2)}`}
+        <div className="rounded-xl border border-border/80 bg-popover/95 p-3 shadow-xl backdrop-blur-md text-xs">
+          <p className="font-bold text-foreground">{label}</p>
+          <p className="text-primary font-extrabold tabular-numbers mt-0.5">
+            ₹{Number(payload[0].value).toLocaleString('en-IN')}
           </p>
         </div>
       );
@@ -95,106 +56,87 @@ const ExpenseChart = ({ expenses, timeRange = 'month' }) => {
   };
 
   if (!expenses || expenses.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No Expenses Yet</h3>
-          <p className="text-muted-foreground">
-            Add your first medical expense to see charts and insights.
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (
-    <div className="space-y-6">
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Total Expenses</p>
-                <p className="text-2xl font-bold">${totalExpenses.toFixed(2)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Avg Monthly</p>
-                <p className="text-2xl font-bold">${averageMonthly.toFixed(2)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Total Records</p>
-                <p className="text-2xl font-bold">{expenses.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Monthly Expenses Bar Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Monthly Expenses</CardTitle>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Bar Chart: Spending Timeline */}
+      <Card className="lg:col-span-7 border-border/80 shadow-xs">
+        <CardHeader className="pb-3 border-b border-border/50">
+          <CardTitle className="text-sm font-bold flex items-center gap-2">
+            <BarChart2 className="h-4 w-4 text-primary" />
+            Monthly Medical Expenditure (₹)
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Cumulative payments across prescription regimens and diagnostic tests.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="h-80">
+        <CardContent className="pt-4">
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(val) => `₹${val}`} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="total" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
 
-      {/* Category Breakdown Pie Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Expenses by Category</CardTitle>
+      {/* Pie Chart: Category Breakdown */}
+      <Card className="lg:col-span-5 border-border/80 shadow-xs">
+        <CardHeader className="pb-3 border-b border-border/50">
+          <CardTitle className="text-sm font-bold flex items-center gap-2">
+            <PieIcon className="h-4 w-4 text-secondary" />
+            Category Allocation
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Proportional split by healthcare expenditure type.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="h-80">
+        <CardContent className="pt-4 flex flex-col items-center">
+          <div className="h-48 w-full max-w-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={({ category, percent }) => `${category} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
+                  innerRadius={50}
+                  outerRadius={75}
+                  paddingAngle={3}
                   dataKey="total"
+                  nameKey="category"
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`$${value.toFixed(2)}`, 'Amount']} />
+                <Tooltip
+                  formatter={(value, name) => [`₹${Number(value).toLocaleString('en-IN')}`, name]}
+                  contentStyle={{
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)',
+                    border: '1px solid hsl(var(--border))'
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
+          </div>
+
+          <div className="w-full flex flex-wrap gap-2 justify-center pt-2">
+            {categoryData.slice(0, 5).map((item, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
+                <span className="truncate max-w-[110px] font-medium">{item.category}</span>
+                <span className="font-bold text-foreground tabular-numbers">₹{item.total.toLocaleString('en-IN')}</span>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

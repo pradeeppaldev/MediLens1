@@ -344,46 +344,47 @@ const PharmacyMap = ({ userLocation, searchQuery, onLocationUpdate }) => {
 
       {/* Results List */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Searching...</span>
+        <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin mr-2 text-primary" />
+          <span>Locating nearby medical providers...</span>
         </div>
       ) : places.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {places.map((place) => (
-            <Card key={place.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-sm line-clamp-2">{place.name}</h3>
-                  <Badge variant={place.type === 'pharmacy' ? 'default' : 'secondary'} className="text-xs">
-                    {place.type === 'pharmacy' ? 'Pharmacy' : 'Hospital'}
-                  </Badge>
-                </div>
-
-                <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-                  {place.address}
-                </p>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Phone className="h-3 w-3" />
-                    <span>{place.phone}</span>
+            <Card key={place.id} className="border-border/70 hover:border-primary/40 shadow-xs hover:shadow-md transition-[transform,box-shadow,border-color] duration-160 ease-emil-out rounded-2xl">
+              <CardContent className="p-4 flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="font-bold text-sm text-foreground line-clamp-1">{place.name}</h3>
+                    <Badge variant={place.type === 'pharmacy' ? 'secondary' : 'default'} className="text-[10px] shrink-0 font-semibold">
+                      {place.type === 'pharmacy' ? 'Pharmacy' : 'Hospital'}
+                    </Badge>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    <span>{place.hours}</span>
-                  </div>
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">
+                    {place.address}
+                  </p>
 
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <MapPin className="h-3 w-3" />
-                    <span>{place.distance}</span>
-                  </div>
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="tabular-numbers">{place.phone}</span>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs ml-1">{place.rating}</span>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-3.5 w-3.5 text-secondary shrink-0" />
+                      <span>{place.hours}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-1.5 text-foreground font-semibold tabular-numbers">
+                        <MapPin className="h-3.5 w-3.5 text-primary" />
+                        <span>{place.distance} away</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                        <span className="text-xs font-bold text-foreground tabular-numbers">{place.rating}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -392,19 +393,19 @@ const PharmacyMap = ({ userLocation, searchQuery, onLocationUpdate }) => {
                   size="sm"
                   variant="outline"
                   onClick={() => getDirections(place)}
-                  className="w-full mt-3 text-xs"
+                  className="w-full mt-4 text-xs font-semibold rounded-xl h-8 gap-1.5 border-border/70"
                 >
-                  <Navigation className="h-3 w-3 mr-1" />
-                  Get Directions
+                  <Navigation className="h-3.5 w-3.5 text-primary" />
+                  Get Navigation Directions
                 </Button>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">No places found. Try adjusting your search.</p>
+        <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-border/60">
+          <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-2 opacity-50" />
+          <p className="text-xs font-medium text-muted-foreground">No medical facilities found. Try adjusting your search query.</p>
         </div>
       )}
     </div>

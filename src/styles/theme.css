@@ -1,101 +1,193 @@
-/* Modern Futuristic Theme with Gradients and Glass Blur Effects */
+/* Emil Kowalski & Apple Design Craft Tokens & Animation Foundations */
 
-/* Glass blur effects */
-.glass-blur {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+:root {
+  /* Emil Kowalski Signature Easing Curves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Emil Kowalski Standard Durations */
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-moderate: 240ms;
+  --duration-slow: 300ms;
 }
 
-.glass-blur-lg {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+/* Base button and pressable physics */
+.pressable {
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+  will-change: transform;
+}
+.pressable:active {
+  transform: scale(0.97);
 }
 
-.glass-blur-xl {
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+/* Ambient Medical Gradients */
+.bg-mesh-gradient {
+  background-color: hsla(210, 40%, 98%, 1);
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(221, 83%, 53%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(168, 80%, 36%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(262, 83%, 58%, 0.05) 0px, transparent 50%);
 }
 
-/* Gradient backgrounds */
-.gradient-primary {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+.dark .bg-mesh-gradient {
+  background-color: hsla(222, 47%, 6%, 1);
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(221, 83%, 53%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(168, 80%, 36%, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(262, 83%, 58%, 0.08) 0px, transparent 50%);
 }
 
-.gradient-secondary {
-  background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
-}
-
-.gradient-accent {
-  background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
-}
-
-/* Text gradients */
-.text-gradient-primary {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-secondary {
-  background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Shadow effects */
-.shadow-glow {
-  box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
-}
-
-.shadow-glow-secondary {
-  box-shadow: 0 0 15px rgba(var(--secondary-rgb), 0.3);
-}
-
-.shadow-glow-accent {
-  box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.3);
-}
-
-/* Border gradients */
-.border-gradient {
-  border: 1px solid transparent;
-  background: linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-              linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary))) border-box;
-}
-
-/* Hover effects */
-.hover-scale {
-  transition: transform 0.2s ease-in-out;
-}
-
-.hover-scale:hover {
-  transform: scale(1.05);
-}
-
-.hover-glow {
-  transition: box-shadow 0.2s ease-in-out;
-}
-
-.hover-glow:hover {
-  box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
-}
-
-/* Animated gradients */
-.animated-gradient {
-  background: linear-gradient(-45deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)), hsl(var(--primary)));
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
-}
-
-@keyframes gradient {
+/* High-Tech Shimmer for active / live elements */
+@keyframes emilShimmer {
   0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
+    background-position: -200% 0;
   }
   100% {
-    background-position: 0% 50%;
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: emilShimmer 2.4s infinite;
+}
+
+/* Breathing Heartbeat Pulse for Telemetry & Alarms */
+@keyframes clinicalPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.85;
+  }
+}
+
+.animate-pulse-clinical {
+  animation: clinicalPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Float Animation for Hero & Feature Badges */
+@keyframes floatSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float {
+  animation: floatSubtle 4s ease-in-out infinite;
+}
+
+/* Glassmorphic Layering & Depth (Apple Translucent Materials) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4), 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Glass Card */
+.glass-card {
+  background: hsl(var(--card) / 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.8);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out), border-color var(--duration-normal) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    border-color: hsl(var(--primary) / 0.4);
+  }
+}
+
+/* Subtle glow effects */
+.glow-primary {
+  box-shadow: 0 0 25px -3px rgba(37, 99, 235, 0.25);
+}
+
+.dark .glow-primary {
+  box-shadow: 0 0 30px -2px rgba(59, 130, 246, 0.35);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 25px -3px rgba(16, 185, 129, 0.25);
+}
+
+/* Tabular figures for telemetry & financial numerals */
+.tabular-numbers {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Stagger entrance animations */
+@keyframes emilFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-stagger-1 { animation: emilFadeInUp 240ms var(--ease-out) 0ms both; }
+.animate-stagger-2 { animation: emilFadeInUp 240ms var(--ease-out) 40ms both; }
+.animate-stagger-3 { animation: emilFadeInUp 240ms var(--ease-out) 80ms both; }
+.animate-stagger-4 { animation: emilFadeInUp 240ms var(--ease-out) 120ms both; }
+.animate-stagger-5 { animation: emilFadeInUp 240ms var(--ease-out) 160ms both; }
+
+/* Status pill indicator */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .glass-card:hover {
+    transform: none !important;
+  }
+  .pressable:active {
+    transform: none !important;
   }
 }

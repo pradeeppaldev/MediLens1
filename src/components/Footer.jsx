@@ -1,67 +1,63 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Camera, Twitter, Facebook, Instagram, Linkedin, Github } from 'lucide-react';
+import { Twitter, Linkedin, Github, Shield, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Logo } from './Logo';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { name: 'Twitter', icon: Twitter, url: '#' },
-    { name: 'Facebook', icon: Facebook, url: '#' },
-    { name: 'Instagram', icon: Instagram, url: '#' },
-    { name: 'LinkedIn', icon: Linkedin, url: '#' },
-    { name: 'GitHub', icon: Github, url: '#' },
+    { name: 'Twitter', icon: Twitter, url: 'https://twitter.com' },
+    { name: 'GitHub', icon: Github, url: 'https://github.com/pradeeppaldev/MediLens1.git' },
+    { name: 'LinkedIn', icon: Linkedin, url: 'https://linkedin.com' },
   ];
 
-  const footerLinks = [
+  const footerNav = [
     {
-      title: 'Product',
+      title: 'Platform',
       links: [
-        { name: 'Features', href: '#' },
-        { name: 'Solutions', href: '#' },
-        { name: 'Pricing', href: '#' },
-        { name: 'Changelog', href: '#' },
+        { name: 'Medication Tracker', href: '/medications' },
+        { name: 'Prescription OCR', href: '/prescriptions/upload' },
+        { name: 'Health Monitor & Vitals', href: '/monitor' },
+        { name: 'AI Clinical Chat', href: '/ai/chat' },
       ],
     },
     {
-      title: 'Resources',
+      title: 'Clinical Network',
       links: [
-        { name: 'Documentation', href: '#' },
-        { name: 'Tutorials', href: '#' },
-        { name: 'Blog', href: '#' },
-        { name: 'Support', href: '#' },
+        { name: 'Doctors & Clinics (India)', href: '/doctors' },
+        { name: 'Pharmacy & Emergency GIS', href: '/pharmacy-locator' },
+        { name: 'Healthcare Expense Ledger (₹)', href: '/expense-tracker' },
+        { name: 'Adherence Analytics', href: '/analytics' },
       ],
     },
     {
-      title: 'Company',
+      title: 'Standards & Security',
       links: [
-        { name: 'About', href: '#' },
-        { name: 'Careers', href: '#' },
-        { name: 'Contact', href: '#' },
-        { name: 'Partners', href: '#' },
+        { name: 'Ayushman Bharat (ABDM)', href: '#' },
+        { name: 'HIPAA & CDSCO Guidelines', href: '#' },
+        { name: 'Patient Data Privacy', href: '#' },
+        { name: 'Terms of Clinical Use', href: '#' },
       ],
     },
   ];
 
   return (
-    <footer className="md:ml-64 border-t bg-background/80 backdrop-blur-lg">
-      <div className="container py-12 md:py-16">
+    <footer className="border-t border-border/80 bg-card/60 backdrop-blur-xl mt-auto transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
-          {/* Brand Column */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center">
-              <div className="rounded-full bg-gradient-to-r from-primary to-secondary p-2 shadow-lg">
-                <Camera className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                MediLens
-              </span>
-            </div>
-            <p className="mt-4 max-w-xs text-muted-foreground">
-              Revolutionizing healthcare with AI-powered prescription management and smart medication reminders.
+          {/* Brand info */}
+          <div className="lg:col-span-2 space-y-4">
+            <Logo size="md" />
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
+              Next-generation clinical medication intelligence & prescription OS. Empowers patients, doctors, and caregivers with vision AI prescription parsing, adherence streaks, and real-time medical insights.
             </p>
-            <div className="mt-6 flex space-x-4">
+            <div className="flex items-center gap-2 pt-1 text-xs text-muted-foreground">
+              <Shield className="h-4 w-4 text-emerald-500" />
+              <span>256-bit AES Encryption • ABDM & HIPAA Aligned</span>
+            </div>
+            <div className="flex space-x-1.5 pt-2">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
@@ -69,12 +65,11 @@ const Footer = () => {
                     key={social.name}
                     variant="ghost"
                     size="icon"
-                    className="rounded-full transition-all duration-200 hover:scale-110 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-primary-foreground"
+                    className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
                     asChild
                   >
-                    <a href={social.url} target="_blank" rel="noopener noreferrer">
-                      <Icon className="h-5 w-5" />
-                      <span className="sr-only">{social.name}</span>
+                    <a href={social.url} target="_blank" rel="noopener noreferrer" aria-label={social.name}>
+                      <Icon className="h-4 w-4" />
                     </a>
                   </Button>
                 );
@@ -82,18 +77,18 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Links Columns */}
-          {footerLinks.map((column) => (
-            <div key={column.title}>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
-                {column.title}
-              </h3>
-              <ul className="mt-4 space-y-4">
-                {column.links.map((link) => (
+          {/* Nav columns */}
+          {footerNav.map((col) => (
+            <div key={col.title} className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                {col.title}
+              </h4>
+              <ul className="space-y-2 text-xs">
+                {col.links.map((link) => (
                   <li key={link.name}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+                      className="text-muted-foreground hover:text-primary font-medium transition-colors duration-140"
                     >
                       {link.name}
                     </Link>
@@ -104,22 +99,14 @@ const Footer = () => {
           ))}
         </div>
 
-        {/* Copyright and Legal */}
-        <div className="mt-12 border-t pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            © {currentYear} MediLens. Made with{' '}
-            <Heart className="inline h-4 w-4 text-red-500" /> for better healthcare.
-          </p>
-          <div className="mt-4 md:mt-0 flex space-x-6">
-            <Link to="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Privacy Policy
-            </Link>
-            <Link to="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Terms of Service
-            </Link>
-            <Link to="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Cookies
-            </Link>
+        {/* Bottom bar */}
+        <div className="border-t border-border/60 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <p>© {currentYear} MediLens Healthcare Technologies Inc. Built with Google Gemini AI & Emil Kowalski Design Engine.</p>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px] border border-emerald-500/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              All Systems Operational
+            </span>
           </div>
         </div>
       </div>

@@ -1,12 +1,16 @@
 import * as React from "react"
-
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef(({ className, ...props }, ref) => (
+const Card = React.forwardRef(({ className, interactive = false, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("rounded-xl border bg-card text-card-foreground shadow", className)}
-    {...props} />
+    className={cn(
+      "rounded-2xl border border-border/70 bg-card/90 text-card-foreground shadow-xs backdrop-blur-sm transition-[transform,box-shadow,border-color] duration-200 ease-emil-out",
+      interactive && "cursor-pointer hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99]",
+      className
+    )}
+    {...props}
+  />
 ))
 Card.displayName = "Card"
 
@@ -14,23 +18,26 @@ const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn("flex flex-col space-y-1.5 p-6", className)}
-    {...props} />
+    {...props}
+  />
 ))
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
-    {...props} />
+    className={cn("text-lg font-semibold leading-tight tracking-tight text-foreground", className)}
+    {...props}
+  />
 ))
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props} />
+    className={cn("text-sm text-muted-foreground leading-relaxed", className)}
+    {...props}
+  />
 ))
 CardDescription.displayName = "CardDescription"
 
@@ -42,8 +49,9 @@ CardContent.displayName = "CardContent"
 const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
-    {...props} />
+    className={cn("flex items-center p-6 pt-0 border-t border-border/40 mt-auto", className)}
+    {...props}
+  />
 ))
 CardFooter.displayName = "CardFooter"
 

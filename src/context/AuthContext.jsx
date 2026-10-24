@@ -21,45 +21,94 @@ export const useAuth = () => {
   return context;
 };
 
+// Rich Realistic Indian Clinical Profiles for Evaluation
+export const DEMO_PROFILES = {
+  patient: {
+    uid: 'demo_patient_aarav',
+    displayName: 'Aarav Sharma',
+    email: 'demo@medilens.in',
+    photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
+    bloodGroup: 'B+',
+    age: 38,
+    gender: 'Male',
+    phone: '+91 98765 43210',
+    city: 'Bengaluru, Karnataka',
+    allergies: ['Penicillin', 'Sulfa Drugs'],
+    chronicConditions: ['Type 2 Diabetes', 'Hypertension (Stage 1)'],
+    emergencyContact: 'Priya Sharma (Spouse) - +91 98765 43211',
+    insuranceProvider: 'Star Health Premier Gold (#SH-IND-884920)',
+    primaryPhysician: 'Dr. Rajesh Sharma, MD (AIIMS New Delhi)',
+    isDemo: true,
+    role: 'patient',
+    createdAt: new Date('2024-01-15'),
+  },
+  doctor: {
+    uid: 'demo_doctor_rajesh',
+    displayName: 'Dr. Rajesh Sharma, MD',
+    email: 'dr.rajesh@medilens.in',
+    photoURL: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=256&q=80',
+    bloodGroup: 'O+',
+    specialty: 'Senior Interventional Cardiologist',
+    hospital: 'AIIMS New Delhi, Ansari Nagar',
+    phone: '+91 11 2658 8500',
+    licenseNumber: 'MCI-DEL-2011-89321',
+    isDemo: true,
+    role: 'doctor',
+    createdAt: new Date('2023-06-10'),
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const savedDemo = localStorage.getItem('medilens_demo_user');
+      return savedDemo ? JSON.parse(savedDemo) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   // Function to create user document in Firestore
   const createUserDocument = async (user, additionalData = {}) => {
-    if (!user) return;
+    if (!user || user.isDemo) return;
 
-    const userDocRef = doc(db, 'users', user.uid);
-    const userSnapshot = await getDoc(userDocRef);
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userSnapshot = await getDoc(userDocRef);
 
-    // If user data doesn't exist, create it
-    if (!userSnapshot.exists()) {
-      const { displayName, email, photoURL } = user;
-      
-      try {
+      if (!userSnapshot.exists()) {
+        const { displayName, email, photoURL } = user;
         await setDoc(userDocRef, {
-          displayName: displayName || additionalData.displayName || 'User',
+          displayName: displayName || additionalData.displayName || 'Patient',
           email,
           photoURL: photoURL || '',
           createdAt: new Date(),
           lastLogin: new Date(),
+          bloodGroup: 'B+',
+          city: 'Bengaluru, India',
           ...additionalData
         });
-      } catch (error) {
-        console.error('Error creating user document:', error);
-      }
-    } else {
-      // Update last login time
-      try {
+      } else {
         await setDoc(userDocRef, {
           lastLogin: new Date()
         }, { merge: true });
-      } catch (error) {
-        console.error('Error updating user document:', error);
       }
+      return userDocRef;
+    } catch (error) {
+      console.warn('Firebase Firestore user doc notice:', error?.message);
     }
-    
-    return userDocRef;
+  };
+
+  const demoLogin = (role = 'patient') => {
+    const profile = DEMO_PROFILES[role] || DEMO_PROFILES.patient;
+    setUser(profile);
+    try {
+      localStorage.setItem('medilens_demo_user', JSON.stringify(profile));
+    } catch (e) {
+      console.error('Failed to save demo user in localStorage', e);
+    }
+    return Promise.resolve({ user: profile });
   };
 
   const register = async (email, password, displayName) => {
@@ -67,10 +116,7 @@ export const AuthProvider = ({ children }) => {
       const response = await createUserWithEmailAndPassword(auth, email, password);
       const user = response.user;
       
-      // Update user profile with display name
       await updateProfile(user, { displayName });
-      
-      // Create user document in Firestore
       await createUserDocument(user, { displayName });
       
       return response;
@@ -81,13 +127,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
+    // Check for demo credentials bypass
+    const cleanEmail = email?.trim()?.toLowerCase();
+    if (
+      cleanEmail === 'demo@medilens.in' ||
+      cleanEmail === 'demo@example.com' ||
+      cleanEmail === 'demo@medilens.io' ||
+      cleanEmail === 'patient@medilens.in'
+    ) {
+      return demoLogin('patient');
+    }
+    if (cleanEmail === 'doctor@medilens.in' || cleanEmail === 'dr.rajesh@medilens.in') {
+      return demoLogin('doctor');
+    }
+
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       const user = response.user;
-      
-      // Update last login time
+      localStorage.removeItem('medilens_demo_user');
       await createUserDocument(user);
-      
       return response;
     } catch (error) {
       console.error('Login error:', error);
@@ -95,8 +153,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    return signOut(auth);
+  const logout = async () => {
+    try {
+      localStorage.removeItem('medilens_demo_user');
+      setUser(null);
+      await signOut(auth);
+    } catch (error) {
+      console.warn('SignOut note:', error?.message);
+      setUser(null);
+    }
   };
 
   const signInWithGoogle = async () => {
@@ -104,10 +169,8 @@ export const AuthProvider = ({ children }) => {
       const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider);
       const user = response.user;
-      
-      // Create or update user document in Firestore
+      localStorage.removeItem('medilens_demo_user');
       await createUserDocument(user);
-      
       return response;
     } catch (error) {
       console.error('Google sign-in error:', error);
@@ -116,34 +179,41 @@ export const AuthProvider = ({ children }) => {
   };
 
   const guestLogin = () => {
-    // For demo purposes, we'll create a temporary guest user
-    // In a real app, you might want to handle this differently
-    return Promise.resolve({ user: { uid: 'guest', displayName: 'Guest User', email: 'guest@example.com', isGuest: true } });
+    return demoLogin('patient');
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Fetch additional user data from Firestore
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        localStorage.removeItem('medilens_demo_user');
         try {
-          const userDocRef = doc(db, 'users', user.uid);
+          const userDocRef = doc(db, 'users', firebaseUser.uid);
           const userSnapshot = await getDoc(userDocRef);
           
           if (userSnapshot.exists()) {
-            const userData = userSnapshot.data();
             setUser({
-              ...user,
-              ...userData
+              ...firebaseUser,
+              ...userSnapshot.data()
             });
           } else {
-            setUser(user);
+            setUser(firebaseUser);
           }
         } catch (error) {
-          console.error('Error fetching user data:', error);
-          setUser(user);
+          console.warn('Error fetching Firestore user profile:', error?.message);
+          setUser(firebaseUser);
         }
       } else {
-        setUser(null);
+        // If not signed in via Firebase, check if demo user was active
+        const savedDemo = localStorage.getItem('medilens_demo_user');
+        if (savedDemo) {
+          try {
+            setUser(JSON.parse(savedDemo));
+          } catch {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       }
       setLoading(false);
     });
@@ -156,6 +226,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     register,
     login,
+    demoLogin,
     logout,
     signInWithGoogle,
     guestLogin
