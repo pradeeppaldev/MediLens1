@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-
+import { Badge } from '@/components/ui/badge';
 import {
   Pill,
   ArrowLeft,
@@ -13,214 +13,193 @@ import {
   Shield,
   Zap,
   Calendar,
-  User
+  Building,
+  CheckCircle,
+  FileText
 } from 'lucide-react';
 
 const MedicineInfo = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // Mock medicine data - in real app, fetch from API
+  // Clinical drug dossier data
   const medicine = {
     id: id || 'aspirin',
-    name: 'Aspirin',
-    genericName: 'Acetylsalicylic Acid',
-    dosage: '100mg',
-    frequency: 'Once daily',
-    purpose: 'Pain relief, anti-inflammatory, anti-platelet',
-    sideEffects: ['Stomach irritation', 'Heartburn', 'Increased bleeding risk'],
-    interactions: ['Warfarin', 'Other NSAIDs', 'Blood thinners'],
-    warnings: 'Do not take if allergic to aspirin or have bleeding disorders',
-    manufacturer: 'Bayer',
-    expiryDate: '2025-12-31',
+    name: 'Aspirin Cardio',
+    genericName: 'Acetylsalicylic Acid (ASA)',
+    dosage: '81mg - 100mg',
+    frequency: 'Once daily with meals',
+    purpose: 'Anti-platelet aggregation, cardiovascular prophylaxis, mild pain relief',
+    sideEffects: [
+      'Gastric irritation & dyspepsia',
+      'Prolonged bleeding time',
+      'Mild heartburn',
+      'Rare: Tinnitus with high doses'
+    ],
+    interactions: [
+      'Warfarin / Novel Oral Anticoagulants (NOACs)',
+      'NSAIDs (Ibuprofen, Naproxen)',
+      'SSRIs (increased bleeding risk)',
+      'Corticosteroids'
+    ],
+    warnings: 'Contraindicated in active peptic ulcer disease, bleeding diathesis, or severe renal impairment. Avoid in children/adolescents with viral illnesses (Reye syndrome risk).',
+    manufacturer: 'Bayer Pharmaceuticals / Generic Equivalents',
+    expiryDate: '2027-04-30',
     prescriptionRequired: false,
-    category: 'Pain Relief',
-    description: 'Aspirin is a salicylate used to treat pain, fever, and inflammation. It\'s also used as an anti-platelet agent to prevent heart attacks and strokes.'
+    category: 'Cardiovascular & Anti-platelet',
+    description: 'Acetylsalicylic acid acts via irreversible acetylation and inactivation of cyclooxygenase-1 (COX-1), blocking thromboxane A2 production and suppressing platelet aggregation for the lifespan of the platelet (7-10 days).'
   };
 
   const relatedMedicines = [
-    { id: 'ibuprofen', name: 'Ibuprofen', category: 'Pain Relief' },
-    { id: 'acetaminophen', name: 'Acetaminophen', category: 'Pain Relief' },
-    { id: 'naproxen', name: 'Naproxen', category: 'Pain Relief' }
+    { id: 'clopidogrel', name: 'Clopidogrel (Plavix)', category: 'Anti-platelet Agent' },
+    { id: 'atorvastatin', name: 'Atorvastatin (Lipitor)', category: 'Lipid Lowering / Statin' },
+    { id: 'lisinopril', name: 'Lisinopril (Zestril)', category: 'ACE Inhibitor' }
   ];
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center space-x-4">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
+      {/* Back Button */}
+      <div className="flex items-center gap-3 pb-2 border-b border-border/40">
         <Button
           variant="outline"
+          size="icon"
           onClick={() => navigate('/medications')}
-          className="transition-all duration-200 hover:shadow-md"
+          className="h-9 w-9 rounded-xl border-border/60 hover:bg-muted active:scale-95"
+          aria-label="Back"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Medications
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Clinical Drug Dossier
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Pharmacological monographs, interactions, and contraindications.
+          </p>
+        </div>
       </div>
 
-      {/* Medicine Overview */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Pill className="h-8 w-8 text-primary" />
+      {/* Main Overview Card */}
+      <Card className="border-border/70 shadow-xs">
+        <CardHeader className="pb-4 border-b border-border/40">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary to-secondary text-white shadow-md shadow-primary/20 shrink-0">
+                <Pill className="h-7 w-7" />
               </div>
               <div>
-                <CardTitle className="text-2xl">{medicine.name}</CardTitle>
-                <CardDescription className="text-lg">{medicine.genericName}</CardDescription>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground mt-2">{medicine.category}</span>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
+                    {medicine.name}
+                  </CardTitle>
+                  <Badge variant="secondary" className="font-semibold text-xs">
+                    {medicine.category}
+                  </Badge>
+                </div>
+                <CardDescription className="text-sm font-medium text-muted-foreground mt-0.5">
+                  Generic: {medicine.genericName}
+                </CardDescription>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Dosage</p>
-              <p className="text-xl font-semibold">{medicine.dosage}</p>
+            <div className="sm:text-right p-3 rounded-xl bg-muted/40 border border-border/40">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Standard Strength</span>
+              <p className="text-lg font-bold text-foreground tabular-numbers">{medicine.dosage}</p>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-6">{medicine.description}</p>
+        <CardContent className="pt-5 space-y-6">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {medicine.description}
+          </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-3 p-4 bg-accent/50 rounded-lg">
-              <Clock className="h-5 w-5 text-primary" />
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border/60 bg-muted/20">
+              <Clock className="h-4 w-4 text-primary shrink-0" />
               <div>
-                <p className="text-sm font-medium">Frequency</p>
-                <p className="text-sm text-muted-foreground">{medicine.frequency}</p>
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Regimen</p>
+                <p className="text-xs font-semibold text-foreground">{medicine.frequency}</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3 p-4 bg-accent/50 rounded-lg">
-              <Calendar className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border/60 bg-muted/20">
+              <Building className="h-4 w-4 text-primary shrink-0" />
               <div>
-                <p className="text-sm font-medium">Expiry Date</p>
-                <p className="text-sm text-muted-foreground">{medicine.expiryDate}</p>
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Manufacturer</p>
+                <p className="text-xs font-semibold text-foreground truncate max-w-[150px]">{medicine.manufacturer}</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3 p-4 bg-accent/50 rounded-lg">
-              <User className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border/60 bg-muted/20">
+              <Calendar className="h-4 w-4 text-primary shrink-0" />
               <div>
-                <p className="text-sm font-medium">Prescription</p>
-                <p className="text-sm text-muted-foreground">
-                  {medicine.prescriptionRequired ? 'Required' : 'Over-the-counter'}
-                </p>
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Lot Expiration</p>
+                <p className="text-xs font-semibold text-foreground tabular-numbers">{medicine.expiryDate}</p>
               </div>
+            </div>
+          </div>
+
+          {/* Warnings Banner */}
+          <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300">
+            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider mb-0.5">Critical Precautions</h4>
+              <p className="text-xs leading-relaxed">{medicine.warnings}</p>
+            </div>
+          </div>
+
+          {/* Side Effects & Interactions side-by-side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl border border-border/70 bg-card space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <Info className="h-3.5 w-3.5 text-primary" />
+                Reported Side Effects
+              </h4>
+              <ul className="space-y-1.5 text-xs text-muted-foreground">
+                {medicine.sideEffects.map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-xl border border-border/70 bg-card space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <Shield className="h-3.5 w-3.5 text-secondary" />
+                Drug-Drug Interactions
+              </h4>
+              <ul className="space-y-1.5 text-xs text-muted-foreground">
+                {medicine.interactions.map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-secondary shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Related / Complementary Therapies */}
+          <div className="space-y-3 pt-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Related Cardiovascular Therapies
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {relatedMedicines.map((rel) => (
+                <div
+                  key={rel.id}
+                  className="p-3 rounded-xl border border-border/70 bg-muted/20 hover:bg-muted/40 transition-colors"
+                >
+                  <p className="text-xs font-semibold text-foreground">{rel.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{rel.category}</p>
+                </div>
+              ))}
             </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Purpose & Usage */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Heart className="h-5 w-5 mr-2 text-primary" />
-            Purpose & Usage
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">{medicine.purpose}</p>
-        </CardContent>
-      </Card>
-
-      {/* Warnings & Precautions */}
-      <Card className="border-orange-200 bg-orange-50">
-        <CardHeader>
-          <CardTitle className="flex items-center text-orange-800">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            Warnings & Precautions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-orange-700">{medicine.warnings}</p>
-        </CardContent>
-      </Card>
-
-      {/* Side Effects */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Shield className="h-5 w-5 mr-2 text-primary" />
-            Common Side Effects
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {medicine.sideEffects.map((effect, index) => (
-              <span key={index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-background border border-input text-foreground">
-                {effect}
-              </span>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Drug Interactions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Zap className="h-5 w-5 mr-2 text-primary" />
-            Drug Interactions
-          </CardTitle>
-          <CardDescription>
-            Medications that may interact with {medicine.name}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {medicine.interactions.map((interaction, index) => (
-              <span key={index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-destructive text-destructive-foreground">
-                {interaction}
-              </span>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Related Medicines */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Related Medicines</CardTitle>
-          <CardDescription>Similar medications you might be interested in</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {relatedMedicines.map((related) => (
-              <Card key={related.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <Pill className="h-6 w-6 text-primary" />
-                    <div>
-                      <h4 className="font-medium">{related.name}</h4>
-                      <p className="text-sm text-muted-foreground">{related.category}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Button
-          onClick={() => navigate('/reminders/add')}
-          className="flex-1 transition-all duration-200 hover:shadow-lg"
-        >
-          <Clock className="h-4 w-4 mr-2" />
-          Set Reminder
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => navigate('/medications/edit/' + medicine.id)}
-          className="flex-1 transition-all duration-200 hover:shadow-md"
-        >
-          <Info className="h-4 w-4 mr-2" />
-          Edit Information
-        </Button>
-      </div>
     </div>
   );
 };

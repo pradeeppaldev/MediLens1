@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Flame, Trophy } from 'lucide-react';
+import { Flame, Trophy, Award, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -29,7 +28,6 @@ const StreaksComponent = () => {
     const now = new Date();
     const dailyAdherence = {};
 
-    // Calculate daily adherence for past 30 days
     for (let i = 0; i < 30; i++) {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
@@ -51,11 +49,9 @@ const StreaksComponent = () => {
         }
       });
 
-      const adherence = taken > 0 ? 100 : 0; // Simplified: 100% if at least one dose taken
-      dailyAdherence[dateStr] = adherence;
+      dailyAdherence[dateStr] = taken > 0 ? 100 : 0;
     }
 
-    // Calculate streaks
     const dates = Object.keys(dailyAdherence).sort();
     let current = 0;
     let best = 0;
@@ -65,15 +61,14 @@ const StreaksComponent = () => {
       const date = dates[i];
       if (dailyAdherence[date] >= 80) {
         temp++;
-        if (i === dates.length - 1) current = temp; // if today or recent
+        if (i === dates.length - 1) current = temp;
       } else {
         best = Math.max(best, temp);
         temp = 0;
       }
     }
-    best = Math.max(best, temp);
+    best = Math.max(best, temp, current);
 
-    // Current streak is the streak ending at the most recent good day
     setCurrentStreak(current);
     setBestStreak(best);
   }, [medicines]);
@@ -81,8 +76,8 @@ const StreaksComponent = () => {
   useEffect(() => {
     if (currentStreak >= 7 && !hasShownConfetti) {
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 80,
+        spread: 60,
         origin: { y: 0.6 }
       });
       setHasShownConfetti(true);
@@ -92,32 +87,38 @@ const StreaksComponent = () => {
   }, [currentStreak, hasShownConfetti]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Flame className="h-5 w-5 mr-2 text-orange-500" />
-          Adherence Streaks
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Current Streak</span>
-            <Badge variant="secondary" className="flex items-center">
-              <Flame className="h-4 w-4 mr-1 text-orange-500" />
-              {currentStreak} days
-            </Badge>
+    <div className="p-4 rounded-2xl border border-border/70 bg-card shadow-xs flex flex-col justify-between">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        <Zap className="h-3.5 w-3.5 text-amber-500" />
+        <span>Streaks</span>
+      </div>
+
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <div className="flex items-center gap-2">
+            <Flame className="h-4 w-4 text-amber-500" />
+            <span className="text-xs font-semibold text-foreground">Current</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Best Streak</span>
-            <Badge variant="outline" className="flex items-center">
-              <Trophy className="h-4 w-4 mr-1 text-yellow-500" />
-              {bestStreak} days
-            </Badge>
-          </div>
+          <span className="text-xs font-bold text-amber-600 dark:text-amber-400 tabular-numbers">
+            {currentStreak} Days
+          </span>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="flex items-center justify-between p-2 rounded-xl bg-muted/40 border border-border/40">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-yellow-500" />
+            <span className="text-xs font-semibold text-foreground">All-Time</span>
+          </div>
+          <span className="text-xs font-bold text-foreground tabular-numbers">
+            {bestStreak} Days
+          </span>
+        </div>
+      </div>
+
+      <p className="text-[10px] text-muted-foreground text-center mt-2">
+        {currentStreak >= 7 ? 'Awesome 7-day adherence streak!' : '7-day streak earns celebration badge'}
+      </p>
+    </div>
   );
 };
 

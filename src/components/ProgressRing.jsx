@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CheckCircle2, Target } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -26,69 +26,79 @@ const ProgressRing = () => {
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
 
-    let taken = 0;
+    let totalScheduledToday = 0;
+    let takenToday = 0;
 
     medicines.forEach(med => {
+      if (med.scheduleTimes && med.scheduleTimes.length > 0) {
+        totalScheduledToday += med.scheduleTimes.length;
+      }
       if (med.doses) {
         med.doses.forEach(dose => {
           if (dose.status === 'taken' && dose.takenAt) {
             const takenDate = dose.takenAt.toDate ? dose.takenAt.toDate() : new Date(dose.takenAt);
             const takenDateStr = takenDate.toISOString().split('T')[0];
             if (takenDateStr === todayStr) {
-              taken++;
+              takenToday++;
             }
           }
         });
       }
     });
 
-    const adherence = taken > 0 ? 100 : 0; // Simplified: 100% if at least one dose taken today
+    const adherence = totalScheduledToday > 0
+      ? Math.min(100, Math.round((takenToday / totalScheduledToday) * 100))
+      : takenToday > 0 ? 100 : 0;
+
     setTodayAdherence(adherence);
   }, [medicines]);
 
   const data = [
-    { name: 'Taken', value: todayAdherence, color: '#10b981' },
-    { name: 'Remaining', value: 100 - todayAdherence, color: '#e5e7eb' }
+    { name: 'Taken', value: todayAdherence, color: 'hsl(var(--primary))' },
+    { name: 'Remaining', value: Math.max(0, 100 - todayAdherence), color: 'hsl(var(--muted))' }
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
-          Today's Progress
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center justify-center">
-          <div className="relative">
-            <ResponsiveContainer width={120} height={120}>
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={55}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-foreground">{todayAdherence}%</span>
-            </div>
-          </div>
+    <div className="p-4 rounded-2xl border border-border/70 bg-card shadow-xs flex flex-col items-center text-center justify-between">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+        <Target className="h-3.5 w-3.5 text-primary" />
+        <span>Today's Target</span>
+      </div>
+
+      <div className="relative h-28 w-28 my-1 flex items-center justify-center">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={38}
+              outerRadius={50}
+              paddingAngle={todayAdherence > 0 && todayAdherence < 100 ? 4 : 0}
+              dataKey="value"
+              startAngle={90}
+              endAngle={-270}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-xl font-bold tracking-tight text-foreground tabular-numbers">
+            {todayAdherence}%
+          </span>
+          <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider">
+            Done
+          </span>
         </div>
-        <p className="text-center text-sm text-muted-foreground mt-2">
-          Daily adherence goal
-        </p>
-      </CardContent>
-    </Card>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground font-medium mt-1">
+        {todayAdherence === 100 ? 'All doses completed!' : 'Daily regimen tracking'}
+      </p>
+    </div>
   );
 };
 

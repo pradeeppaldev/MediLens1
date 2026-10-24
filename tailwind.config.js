@@ -54,6 +54,19 @@ export default {
       gradientColorStops: {
         'primary-gradient': ['#6366f1', '#0d9488']
       },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      transitionTimingFunction: {
+        'emil-out': 'cubic-bezier(0.23, 1, 0.32, 1)',
+        'emil-in-out': 'cubic-bezier(0.77, 0, 0.175, 1)',
+        'emil-drawer': 'cubic-bezier(0.32, 0.72, 0, 1)',
+      },
+      transitionDuration: {
+        '120': '120ms',
+        '160': '160ms',
+        '220': '220ms',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
